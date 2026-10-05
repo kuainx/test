@@ -1,0 +1,18 @@
+name: Connectivity Check
+on: workflow_dispatch
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check target URL
+        run: |
+          STATUS=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 https://genapi.v.ekuai.tech/v1)
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" = "000" ]; then
+            echo "❌ 连接失败，进一步诊断..."
+            curl -v --max-time 10 https://genapi.v.ekuai.tech/v1 || true
+            exit 1
+          else
+            echo "✅ 网络可达"
+          fi
